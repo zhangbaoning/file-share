@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="https://cdn.jsdelivr.net/npm/vue"></script>
+    <script src="antd.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="antd.min.css"/>
+</head>
+<body>
+<div id="app">
+    <!--<form action="/upload" method="post" enctype="multipart/form-data">-->
+    <!--<input type="file" name="uploadfile">-->
+    <!--<input type="submit">-->
+    <!--</form>-->
+    <a-upload-dragger
+            :supportServerRender="true"
+            name="uploadfile"
+            :multiple="true"
+            action="/upload"
+            @change="handleChange">
+        <p class="ant-upload-drag-icon">
+            <a-icon type="inbox"/>
+        </p>
+        <p class="ant-upload-text">
+            点击或把文件拖拽在这里进行上传
+        </p>
+        <!--<p class="ant-upload-hint">-->
+            <!--Support for a single or bulk upload. Strictly prohibit from uploading company data or other-->
+            <!--band files-->
+        <!--</p>-->
+    </a-upload-dragger>
+    <a-list item-layout="horizontal" :data-source="fileNameList">
+        <a-list-item slot="renderItem" slot-scope="item, index">
+            <a-list-item-meta>
+                    <!--description="Ant Design, a design language for background applications, is refined by Ant UED Team"-->
+
+                <a slot="title" :href="'/download?fileName='+ item ">{{item}}</a>
+            </a-list-item-meta>
+        </a-list-item>
+    </a-list>
+    <!--<ul th:each="name:${fileNameList}">-->
+    <!--<li th:text="${name}"></li>-->
+    <!--</ul>-->
+</div>
+<script type="application/javascript" th:inline="javascript">
+    var vue = new Vue({
+        el: '#app',
+        data: {
+            fileNameList: [[${fileNameList}]]
+        },
+        methods: {
+            handleChange(info) {
+                const status = info.file.status;
+                if (status === 'done') {
+                    window.location.reload()
+                }
+            },
+            created() {
+                this.fileNameList = [[${fileNameList}]]
+            }
+        }
+    })
+</script>
+</body>
+</html>
