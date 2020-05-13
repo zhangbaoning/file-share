@@ -1,3 +1,4 @@
+upload-file-path: D:/temp
 spring:
   servlet:
     multipart:

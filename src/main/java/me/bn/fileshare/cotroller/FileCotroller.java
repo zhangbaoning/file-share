@@ -1,5 +1,7 @@
 package me.bn.fileshare.cotroller;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
@@ -24,9 +26,11 @@ import java.util.List;
 
 @Controller
 public class FileCotroller {
+    @Value("${upload-file-path}")
+    private String uploadFilePath;
     @PostMapping("/upload")
     public String upload(@RequestParam("uploadfile") MultipartFile file){
-        Path path = Paths.get("D:\\temp\\"+file.getOriginalFilename());
+        Path path = Paths.get(uploadFilePath+File.separator+file.getOriginalFilename());
         List<String> fileNameList = new ArrayList<>();
         try {
             file.transferTo(path);
@@ -48,7 +52,7 @@ public class FileCotroller {
         ModelAndView modelAndView = new ModelAndView();
 
         List<String> fileNameList = new ArrayList<>();
-        File file = new File("D:\\temp\\");
+        File file = new File(uploadFilePath);
         try {
 
             for (File listFile : file.listFiles()) {
@@ -63,7 +67,7 @@ public class FileCotroller {
     }
     @GetMapping("/download")
     public ResponseEntity<Resource> download(@RequestParam("fileName") String fileName){
-        File file = new File("D:\\temp\\"+fileName);
+        File file = new File(uploadFilePath+File.separator+fileName);
         InputStreamResource resource = null;
         HttpHeaders headers = new HttpHeaders();
         headers.add("Cache-Control", "no-cache, no-store, must-revalidate");
