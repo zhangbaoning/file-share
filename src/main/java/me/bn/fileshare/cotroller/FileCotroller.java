@@ -70,13 +70,14 @@ public class FileCotroller {
         File file = new File(uploadFilePath+File.separator+fileName);
         InputStreamResource resource = null;
         HttpHeaders headers = new HttpHeaders();
+        try {
         headers.add("Cache-Control", "no-cache, no-store, must-revalidate");
         headers.add("Pragma", "no-cache");
         headers.add("Expires", "0");
-        headers.setContentDispositionFormData("attachment", fileName);
-        try {
+        headers.setContentDispositionFormData("attachment", new String(fileName.getBytes(),"iso8859-1"));
+
             resource = new InputStreamResource(new FileInputStream(file));
-        } catch (FileNotFoundException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
 

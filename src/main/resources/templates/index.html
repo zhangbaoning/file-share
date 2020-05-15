@@ -9,6 +9,9 @@
 </head>
 <body>
 <div id="app">
+    <div>
+        <a-switch checked-children="公网" un-checked-children="内网" default-checked v-on:change="switchChange"/>
+    </div>
     <!--<form action="/upload" method="post" enctype="multipart/form-data">-->
     <!--<input type="file" name="uploadfile">-->
     <!--<input type="submit">-->
@@ -26,14 +29,14 @@
             点击或把文件拖拽在这里进行上传
         </p>
         <!--<p class="ant-upload-hint">-->
-            <!--Support for a single or bulk upload. Strictly prohibit from uploading company data or other-->
-            <!--band files-->
+        <!--Support for a single or bulk upload. Strictly prohibit from uploading company data or other-->
+        <!--band files-->
         <!--</p>-->
     </a-upload-dragger>
     <a-list item-layout="horizontal" :data-source="fileNameList">
         <a-list-item slot="renderItem" slot-scope="item, index">
             <a-list-item-meta>
-                    <!--description="Ant Design, a design language for background applications, is refined by Ant UED Team"-->
+                <!--description="Ant Design, a design language for background applications, is refined by Ant UED Team"-->
 
                 <a slot="title" :href="'/download?fileName='+ item ">{{item}}</a>
             </a-list-item-meta>
@@ -50,6 +53,9 @@
             fileNameList: [[${fileNameList}]]
         },
         methods: {
+            switchChange(checked,event){
+                sessionStorage.setItem("isPublic",checked);
+            },
             handleChange(info) {
                 const status = info.file.status;
                 if (status === 'done') {
