@@ -3,3 +3,13 @@ spring:
   servlet:
     multipart:
       max-file-size: 20MB
+
+  datasource:
+    password: zhangbaoning
+    username: root
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://127.0.0.1:3306/file_share?serverTimezone=UTC
+server:
+  servlet:
+    session:
+      timeout: 60

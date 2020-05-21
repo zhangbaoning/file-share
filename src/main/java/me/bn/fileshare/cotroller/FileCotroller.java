@@ -1,5 +1,6 @@
 package me.bn.fileshare.cotroller;
 
+import me.bn.fileshare.service.FileService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.InputStreamResource;
@@ -7,10 +8,7 @@ import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.stereotype.Controller;
@@ -28,6 +26,8 @@ import java.util.List;
 public class FileCotroller {
     @Value("${upload-file-path}")
     private String uploadFilePath;
+    @Autowired
+    FileService service;
     @PostMapping("/upload")
     public String upload(@RequestParam("uploadfile") MultipartFile file){
         Path path = Paths.get(uploadFilePath+File.separator+file.getOriginalFilename());
@@ -47,7 +47,7 @@ public class FileCotroller {
 //    public String index(){
 //        return "index";
 //    }
-    @GetMapping("/")
+    @RequestMapping("/")
     public ModelAndView index(){
         ModelAndView modelAndView = new ModelAndView();
 
