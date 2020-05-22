@@ -38,6 +38,7 @@ public class SecurityConf extends WebSecurityConfigurerAdapter {
                 .authenticated()
                 .and().formLogin().successForwardUrl("/");
         http.rememberMe();
+        http.csrf().disable();
     }
 
     @Bean

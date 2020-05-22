@@ -5,12 +5,13 @@
     <title>Title</title>
     <script src="https://cdn.jsdelivr.net/npm/vue"></script>
     <script src="antd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/js-cookie@rc/dist/js.cookie.min.js"></script>
     <link rel="stylesheet" type="text/css" href="antd.min.css"/>
 </head>
 <body>
 <div id="app">
     <div>
-        <a-switch checked-children="公网" un-checked-children="内网" default-checked v-on:change="switchChange"/>
+        <a-switch checked-children="公网" un-checked-children="内网" :default-checked="switchChecked" v-on:change="switchChange"/>
     </div>
     <!--<form action="/upload" method="post" enctype="multipart/form-data">-->
     <!--<input type="file" name="uploadfile">-->
@@ -50,11 +51,13 @@
     var vue = new Vue({
         el: '#app',
         data: {
-            fileNameList: [[${fileNameList}]]
+            fileNameList: [[${fileNameList}]],
+            switchChecked: false,
         },
         methods: {
             switchChange(checked,event){
-                sessionStorage.setItem("isPublic",checked);
+                this.switchChecked = checked;
+                Cookies.set('isPublic',checked);
             },
             handleChange(info) {
                 const status = info.file.status;
@@ -63,8 +66,21 @@
                 }
             },
             created() {
-                this.fileNameList = [[${fileNameList}]]
-            }
+                document.cookie="isPublic:"+true;
+
+                //this.fileNameList = [[${fileNameList}]]
+            },
+
+        },
+        created(){
+           console.log(Cookies.get('isPublic')) ;
+           if (Cookies.get('isPublic')==undefined){
+               Cookies.set('isPublic',true);
+               this.switchChecked = true;
+           }else {
+               this.switchChecked =Cookies.get('isPublic')=="true"?true:false;
+           }
+
         }
     })
 </script>

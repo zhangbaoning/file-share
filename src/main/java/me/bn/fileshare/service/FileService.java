@@ -31,11 +31,12 @@ public class FileService {
             e.printStackTrace();
         }
     }
-    void save(String name,boolean isEncrypt){
+    public void save(String name,boolean isEncrypt,String ip){
         FileEntity fileEntity = new FileEntity();
         fileEntity.setName(name);
         fileEntity.setUuid(UUID.randomUUID().toString());
         fileEntity.setIsEncrypt(isEncrypt);
+        fileEntity.setIp(ip);
         dao.save(fileEntity);
     }
 }

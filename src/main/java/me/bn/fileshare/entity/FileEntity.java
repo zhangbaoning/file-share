@@ -11,6 +11,7 @@ public class FileEntity {
     private String name;
     private boolean isEncrypt;
     private String user;
+    private String ip;
 
     @Id
     @Column(name = "id")
@@ -48,6 +49,7 @@ public class FileEntity {
         return isEncrypt;
     }
 
+
     public void setIsEncrypt(boolean isEncrypt) {
         this.isEncrypt = isEncrypt;
     }
@@ -77,5 +79,15 @@ public class FileEntity {
     @Override
     public int hashCode() {
         return Objects.hash(id, uuid, name, isEncrypt, user);
+    }
+
+    @Basic
+    @Column(name = "ip")
+    public String getIp() {
+        return ip;
+    }
+
+    public void setIp(String ip) {
+        this.ip = ip;
     }
 }
