@@ -1,8 +1,6 @@
 package me.bn.fileshare.cotroller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.json.JsonParser;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -23,7 +21,7 @@ public class Redirect {
     @GetMapping("onedriver")
     public String setToken() {
         String scope = "files.readwrite.all";
-        String clientId = "a67433c0-386f-421d-9c48-f5825bb63ba7";
+        String clientId = "19ef04dc-2fb4-4fc9-87c8-7017f133cfbc";
         String token = "token";
         String redirectUri = "http://localhost:8080/getToken";
         return "redirect:https://login.microsoftonline.com/common/oauth2/v2.0/authorize?client_id=" + clientId + "&scope=" + scope +
@@ -32,29 +30,35 @@ public class Redirect {
 
     @GetMapping("getToken")
     public ModelAndView getToken(@RequestParam Map<String, String> param) {
-        List<String> fileNameList = new ArrayList<>();
+        List<Map<String,String>> fileNameList = new ArrayList<>();
         ModelAndView modelAndView = new ModelAndView();
 
 
         if (param.size() == 0) {
             System.out.println(param);
             System.out.println(request.getPathInfo());
-            modelAndView.setViewName("index");
+            modelAndView.setViewName("onedriver");
             return modelAndView;
         } else {
-            String url = "https://graph.microsoft.com/v1.0/drive";
+            String url = "https://graph.microsoft.com/v1.0/me/drives";
             HttpHeaders httpHeaders = new HttpHeaders();
             RestTemplate template = new RestTemplate();
-            httpHeaders.setBearerAuth(param.get("access_token"));
+           httpHeaders.setBearerAuth(param.get("access_token"));
             ResponseEntity<HashMap> result = template.exchange(url, HttpMethod.GET,new HttpEntity<>(httpHeaders), HashMap.class);
             System.out.println(result.getBody().get("id"));
-            url= "https://graph.microsoft.com/v1.0//me/drive/root/children";
+            url= "https://graph.microsoft.com/v1.0//me/drive/items/016Z33MC57UQL5YFCJ7RGYH5RKO6XNQLER";
+
             ResponseEntity<HashMap> itemResult = template.exchange(url, HttpMethod.GET,new HttpEntity<>(httpHeaders), HashMap.class);
             System.out.println(itemResult.getBody());
             ArrayList<LinkedHashMap> fileList= (ArrayList<LinkedHashMap>) itemResult.getBody().get("value");
+
             for (LinkedHashMap linkedHashMap : fileList) {
-                fileNameList.add(String.valueOf(linkedHashMap.get("webUrl")));
+                Map<String,String> respMap = new HashMap(2);
+                respMap.put("url",String.valueOf(linkedHashMap.get("webUrl")));
+                respMap.put("fileName",String.valueOf(linkedHashMap.get("webUrl")));
+                fileNameList.add(respMap);
             }
+
             modelAndView.addObject("fileNameList",fileNameList);
             modelAndView.setViewName("index");
             return modelAndView;
