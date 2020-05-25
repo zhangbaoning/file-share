@@ -65,7 +65,8 @@ public class FileCotroller {
                 if ("isPublic".equals(cookie.getName())){
                     isPublic = "true".equals(cookie.getValue())?true:false;
                 }
-            }if (isPublic){
+            }
+            if (isPublic){
                 for (File listFile : file.listFiles()) {
                     fileNameList.add(listFile.getName());
                 }
