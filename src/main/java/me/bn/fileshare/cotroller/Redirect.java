@@ -21,7 +21,8 @@ public class Redirect {
     @GetMapping("onedriver")
     public String setToken() {
         String scope = "files.readwrite.all";
-        String clientId = "19ef04dc-2fb4-4fc9-87c8-7017f133cfbc";
+//        String clientId = "a67433c0-386f-421d-9c48-f5825bb63ba7";
+        String clientId = "846abe5e-34e8-4d40-86df-602bc5ac54f1";
         String token = "token";
         String redirectUri = "http://localhost:8080/getToken";
         return "redirect:https://login.microsoftonline.com/common/oauth2/v2.0/authorize?client_id=" + clientId + "&scope=" + scope +
@@ -45,18 +46,28 @@ public class Redirect {
             RestTemplate template = new RestTemplate();
            httpHeaders.setBearerAuth(param.get("access_token"));
             ResponseEntity<HashMap> result = template.exchange(url, HttpMethod.GET,new HttpEntity<>(httpHeaders), HashMap.class);
-            System.out.println(result.getBody().get("id"));
+            ArrayList<Map<String,String>> valueList = (ArrayList) result.getBody().get("value");
+            String driverId = valueList.get(0).get("id");
+            url = "https://graph.microsoft.com/v1.0/drives/"+driverId+"/root/children";
+            ResponseEntity<HashMap> rootDir = template.exchange(url, HttpMethod.GET,new HttpEntity<>(httpHeaders), HashMap.class);
+            ArrayList<LinkedHashMap<String,Object>> fileMap = (ArrayList<LinkedHashMap<String, Object>>) rootDir.getBody().get("value");
+
+          /*  System.out.println(rootDir.getBody());
             url= "https://graph.microsoft.com/v1.0//me/drive/items/016Z33MC57UQL5YFCJ7RGYH5RKO6XNQLER";
 
             ResponseEntity<HashMap> itemResult = template.exchange(url, HttpMethod.GET,new HttpEntity<>(httpHeaders), HashMap.class);
             System.out.println(itemResult.getBody());
             ArrayList<LinkedHashMap> fileList= (ArrayList<LinkedHashMap>) itemResult.getBody().get("value");
-
-            for (LinkedHashMap linkedHashMap : fileList) {
+*/
+            for (LinkedHashMap linkedHashMap : fileMap) {
                 Map<String,String> respMap = new HashMap(2);
-                respMap.put("url",String.valueOf(linkedHashMap.get("webUrl")));
-                respMap.put("fileName",String.valueOf(linkedHashMap.get("webUrl")));
-                fileNameList.add(respMap);
+                if (linkedHashMap.containsKey("@microsoft.graph.downloadUrl")){
+                    respMap.put("fileName",String.valueOf(linkedHashMap.get("name")));
+                    respMap.put("url",String.valueOf(linkedHashMap.get("@microsoft.graph.downloadUrl")));
+                    fileNameList.add(respMap);
+
+                }
+
             }
 
             modelAndView.addObject("fileNameList",fileNameList);

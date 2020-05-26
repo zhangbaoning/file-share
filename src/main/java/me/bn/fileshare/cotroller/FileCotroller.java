@@ -22,9 +22,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 @Controller
 public class FileCotroller {
@@ -57,7 +55,7 @@ public class FileCotroller {
     public ModelAndView index(){
         ModelAndView modelAndView = new ModelAndView();
         boolean isPublic = true;
-        List<String> fileNameList = new ArrayList<>();
+        List<Map<String,String>> fileNameList = new ArrayList<>();
         File file = new File(uploadFilePath);
         try {
             Cookie[] cookies = request.getCookies();
@@ -68,7 +66,11 @@ public class FileCotroller {
             }
             if (isPublic){
                 for (File listFile : file.listFiles()) {
-                    fileNameList.add(listFile.getName());
+                    Map<String,String> respMap = new HashMap(2);
+
+                    respMap.put("fileName",String.valueOf(listFile.getName()));
+                        respMap.put("url","/download?fileName="+listFile.getName());
+                        fileNameList.add(respMap);
                 }
             }
 

@@ -39,7 +39,7 @@
             <a-list-item-meta>
                 <!--description="Ant Design, a design language for background applications, is refined by Ant UED Team"-->
 
-                <a slot="title" :href="'/download?fileName='+ item ">{{item}}</a>
+                <a slot="title" :href="item.url">{{item.fileName}}</a>
             </a-list-item-meta>
         </a-list-item>
     </a-list>
@@ -56,6 +56,7 @@
         },
         methods: {
             switchChange(checked,event){
+                console.log(this.fileNameList);
                 this.switchChecked = checked;
                 Cookies.set('isPublic',checked);
             },

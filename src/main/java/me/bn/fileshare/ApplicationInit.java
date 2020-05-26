@@ -6,7 +6,6 @@ import org.springframework.boot.ApplicationRunner;
 import org.springframework.stereotype.Component;
 
 import java.io.File;
-import java.io.IOException;
 @Component
 public class ApplicationInit implements ApplicationRunner {
 
