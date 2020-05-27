@@ -1,4 +1,5 @@
 upload-file-path: D:/temp
+clientId: 19ef04dc-2fb4-4fc9-87c8-7017f133cfbc
 spring:
   servlet:
     multipart:
@@ -9,6 +10,9 @@ spring:
     username: root
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://127.0.0.1:3306/file_share?serverTimezone=UTC
+  redis:
+    host: hw.dinging.cn
+    password: zhangbaoning
 server:
   servlet:
     session:
