@@ -10,16 +10,55 @@
     <link rel="stylesheet" type="text/css" href="ele/index.css">
     <!-- 引入组件库 -->
     <script src="ele/index.js"></script>
+    <script src="imagesloaded.pkgd.min.js"></script>
+    <style>
+        * { box-sizing: border-box; }
+
+        /* force scrollbar */
+        html { overflow-y: scroll; }
+
+        body { font-family: sans-serif; }
+
+        /* ---- grid ---- */
+
+        .grid {
+            background: #DDD;
+        }
+
+        /* clear fix */
+        .grid:after {
+            content: '';
+            display: block;
+            clear: both;
+        }
+
+        /* ---- .grid-item ---- */
+
+        .grid-sizer,
+        .grid-item {
+            width: 33.333%;
+        }
+
+        .grid-item {
+            float: left;
+        }
+
+        .grid-item img {
+            display: block;
+            max-width: 100%;
+        }
+    </style>
 </head>
 <body>
 <div id="app">
     <div class="grid js-masonry">
+        <div class="grid-sizer"></div>
 
         <div class="grid-item" th:each="item : ${fileList}">
             <el-card :body-style="{ padding: '0px' }">
-            <el-image
+            <img
                     th:src="${item}"
-                    ></el-image>
+                    ></img>
             </el-card>
         </div>
     </div>
@@ -27,18 +66,26 @@
 <script type="application/javascript" th:inline="javascript">
     var vue = new Vue({
         el: '#app',
-        created() {
+        mounted() {
+            var elem = document.querySelector('.grid');
+            var imgLoad = imagesLoaded( elem );
+            imgLoad.on( 'done', function (instance,image) {
+                alert(3)
+                var msnry = new Masonry(elem, {
+                    // options
+                    itemSelector: '.grid-item',
+                    percentPosition: true,
+                    columnWidth: '.grid-sizer'
+                });
+                alert(4)
+            } );
         }
     })
 
-    setTimeout(function () {
-        var elem = document.querySelector('.grid');
-        var msnry = new Masonry(elem, {
-            // options
-            itemSelector: '.grid-item',
-            columnWidth: 200
-        });
-    }, 3000)
+
+
+
+
 
 </script>
 </body>

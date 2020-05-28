@@ -12,7 +12,7 @@ public class PhotoController {
     @GetMapping("photo")
     public ModelAndView wall(){
         ModelAndView modelAndView = new ModelAndView();
-        File file = new File("D:\\temp\\");
+        File file = new File("/Users/baoning/IdeaProjects/file-share/src/main/resources/static/img/");
         List list = new ArrayList<String>();
         for (File listFile : file.listFiles()) {
             if (listFile.getName().contains("jpg")){

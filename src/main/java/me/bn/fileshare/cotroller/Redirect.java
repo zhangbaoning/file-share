@@ -15,6 +15,9 @@ import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 @Controller
@@ -74,7 +77,6 @@ public class Redirect {
         url = "https://graph.microsoft.com/v1.0/drives/" + driverId + "/root/children";
         ResponseEntity<HashMap> rootDir = template.exchange(url, HttpMethod.GET, new HttpEntity<>(httpHeaders), HashMap.class);
         ArrayList<LinkedHashMap<String, Object>> fileMap = (ArrayList<LinkedHashMap<String, Object>>) rootDir.getBody().get("value");
-
         for (LinkedHashMap linkedHashMap : fileMap) {
             Map<String, String> respMap = new HashMap(2);
             if (linkedHashMap.containsKey("@microsoft.graph.downloadUrl")) {
@@ -138,18 +140,30 @@ public class Redirect {
         ModelAndView modelAndView = new ModelAndView();
         String onedriveToken = redisTemplate.opsForValue().get("onedrive");
         String driverId = (String) request.getSession().getAttribute("driverId");
-        sessionIdList = sessionIdList.subList(0,10);
+        //sessionIdList = sessionIdList.subList(0,10);
+        ExecutorService executorService =  Executors.newFixedThreadPool(5);
         for (String id : sessionIdList) {
-            String url = "https://graph.microsoft.com/v1.0/drives/" + driverId + "/items/" + id + "/thumbnails/0/large";
-            HttpHeaders httpHeaders = new HttpHeaders();
-            RestTemplate template = new RestTemplate();
-            httpHeaders.setBearerAuth(onedriveToken);
-            ResponseEntity<HashMap> itemResult = template.exchange(url, HttpMethod.GET, new HttpEntity<>(httpHeaders), HashMap.class);
-            System.out.println(itemResult.getBody());
+            executorService.execute(new Runnable() {
+                @Override
+                public void run() {
+                    String url = "https://graph.microsoft.com/v1.0/drives/" + driverId + "/items/" + id + "/thumbnails/0/large";
+                    HttpHeaders httpHeaders = new HttpHeaders();
+                    RestTemplate template = new RestTemplate();
+                    httpHeaders.setBearerAuth(onedriveToken);
+                    ResponseEntity<HashMap> itemResult = template.exchange(url, HttpMethod.GET, new HttpEntity<>(httpHeaders), HashMap.class);
+                    System.out.println(itemResult.getBody());
 
-            list.add(itemResult.getBody().get("url"));
+                    list.add(itemResult.getBody().get("url"));
+                }
+            });
+
         }
-
+       executorService.shutdown();
+        try {
+            executorService.awaitTermination(10L,TimeUnit.SECONDS);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         modelAndView.addObject("fileList",list);
         modelAndView.setViewName("photowall");
         return modelAndView;
