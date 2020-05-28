@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="https://cdn.jsdelivr.net/npm/vue"></script>
+
+    <script src="masonry.pkgd.min.js"></script>
+    <!-- 引入样式 -->
+    <link rel="stylesheet" type="text/css" href="ele/index.css">
+    <!-- 引入组件库 -->
+    <script src="ele/index.js"></script>
+</head>
+<body>
+<div id="app">
+    <div class="grid js-masonry">
+
+        <div class="grid-item" th:each="item : ${fileList}">
+            <el-card :body-style="{ padding: '0px' }">
+            <el-image
+                    th:src="${item}"
+                    ></el-image>
+            </el-card>
+        </div>
+    </div>
+</div>
+<script type="application/javascript" th:inline="javascript">
+    var vue = new Vue({
+        el: '#app',
+        created() {
+        }
+    })
+
+    setTimeout(function () {
+        var elem = document.querySelector('.grid');
+        var msnry = new Masonry(elem, {
+            // options
+            itemSelector: '.grid-item',
+            columnWidth: 200
+        });
+    }, 3000)
+
+</script>
+</body>
+</html>

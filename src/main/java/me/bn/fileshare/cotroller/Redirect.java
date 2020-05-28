@@ -15,6 +15,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 @Controller
 public class Redirect {
@@ -58,46 +59,40 @@ public class Redirect {
             System.out.println(request.getPathInfo());
             modelAndView.setViewName("onedriver");
             return modelAndView;
-        } else {
-            String url = "https://graph.microsoft.com/v1.0/me/drives";
-            HttpHeaders httpHeaders = new HttpHeaders();
-            RestTemplate template = new RestTemplate();
-            httpHeaders.setBearerAuth(param.get("access_token"));
-            redisTemplate.opsForValue().set("onedrive", param.get("access_token"));
-            ResponseEntity<HashMap> result = template.exchange(url, HttpMethod.GET, new HttpEntity<>(httpHeaders), HashMap.class);
-            ArrayList<Map<String, String>> valueList = (ArrayList) result.getBody().get("value");
-            String driverId = valueList.get(0).get("id");
-            request.getSession().setAttribute("driverId", driverId);
-            url = "https://graph.microsoft.com/v1.0/drives/" + driverId + "/root/children";
-            ResponseEntity<HashMap> rootDir = template.exchange(url, HttpMethod.GET, new HttpEntity<>(httpHeaders), HashMap.class);
-            ArrayList<LinkedHashMap<String, Object>> fileMap = (ArrayList<LinkedHashMap<String, Object>>) rootDir.getBody().get("value");
+        } else if(param.size()>1) {
+            redisTemplate.opsForValue().set("onedrive", param.get("access_token"),9L, TimeUnit.MINUTES);
 
-          /*  System.out.println(rootDir.getBody());
-            url= "https://graph.microsoft.com/v1.0//me/drive/items/016Z33MC57UQL5YFCJ7RGYH5RKO6XNQLER";
+        }
+        String url = "https://graph.microsoft.com/v1.0/me/drives";
+        HttpHeaders httpHeaders = new HttpHeaders();
+        RestTemplate template = new RestTemplate();
+        httpHeaders.setBearerAuth(param.get("access_token"));
+        ResponseEntity<HashMap> result = template.exchange(url, HttpMethod.GET, new HttpEntity<>(httpHeaders), HashMap.class);
+        ArrayList<Map<String, String>> valueList = (ArrayList) result.getBody().get("value");
+        String driverId = valueList.get(0).get("id");
+        request.getSession().setAttribute("driverId", driverId);
+        url = "https://graph.microsoft.com/v1.0/drives/" + driverId + "/root/children";
+        ResponseEntity<HashMap> rootDir = template.exchange(url, HttpMethod.GET, new HttpEntity<>(httpHeaders), HashMap.class);
+        ArrayList<LinkedHashMap<String, Object>> fileMap = (ArrayList<LinkedHashMap<String, Object>>) rootDir.getBody().get("value");
 
-            ResponseEntity<HashMap> itemResult = template.exchange(url, HttpMethod.GET,new HttpEntity<>(httpHeaders), HashMap.class);
-            System.out.println(itemResult.getBody());
-            ArrayList<LinkedHashMap> fileList= (ArrayList<LinkedHashMap>) itemResult.getBody().get("value");
-*/
-            for (LinkedHashMap linkedHashMap : fileMap) {
-                Map<String, String> respMap = new HashMap(2);
-                if (linkedHashMap.containsKey("@microsoft.graph.downloadUrl")) {
-                    respMap.put("url", String.valueOf(linkedHashMap.get("@microsoft.graph.downloadUrl")));
+        for (LinkedHashMap linkedHashMap : fileMap) {
+            Map<String, String> respMap = new HashMap(2);
+            if (linkedHashMap.containsKey("@microsoft.graph.downloadUrl")) {
+                respMap.put("url", String.valueOf(linkedHashMap.get("@microsoft.graph.downloadUrl")));
 
-                } else {
-                    respMap.put("url", "dir?id=" + linkedHashMap.get("id"));
-
-                }
-                respMap.put("fileName", String.valueOf(linkedHashMap.get("name")));
-                fileNameList.add(respMap);
-
+            } else {
+                respMap.put("url", "dir?id=" + linkedHashMap.get("id"));
 
             }
+            respMap.put("fileName", String.valueOf(linkedHashMap.get("name")));
+            fileNameList.add(respMap);
 
-            modelAndView.addObject("fileNameList", fileNameList);
-            modelAndView.setViewName("index");
-            return modelAndView;
+
         }
+
+        modelAndView.addObject("fileNameList", fileNameList);
+        modelAndView.setViewName("index");
+        return modelAndView;
 
     }
 
@@ -114,7 +109,7 @@ public class Redirect {
         ResponseEntity<HashMap> itemResult = template.exchange(url, HttpMethod.GET, new HttpEntity<>(httpHeaders), HashMap.class);
         System.out.println(itemResult.getBody());
         ArrayList<LinkedHashMap> fileList = (ArrayList<LinkedHashMap>) itemResult.getBody().get("value");
-
+        List<String> sessionIdList = new ArrayList<>();
         for (LinkedHashMap linkedHashMap : fileList) {
             Map<String, String> respMap = new HashMap(2);
             if (linkedHashMap.containsKey("@microsoft.graph.downloadUrl")) {
@@ -123,15 +118,40 @@ public class Redirect {
             } else {
                 respMap.put("url", "dir?id=" + linkedHashMap.get("id"));
 
+
             }
             respMap.put("fileName", String.valueOf(linkedHashMap.get("name")));
             fileNameList.add(respMap);
+            sessionIdList.add((String) linkedHashMap.get("id"));
 
         }
-
+        request.getSession().setAttribute("sessionId",sessionIdList);
         modelAndView.addObject("fileNameList", fileNameList);
         modelAndView.setViewName("index");
         return modelAndView;
     }
+    @GetMapping("thumbnails")
+    public ModelAndView thumbnails() {
+        List<String> sessionIdList = (List<String>) request.getSession().getAttribute("sessionId");
+        List list = new ArrayList();
 
+        ModelAndView modelAndView = new ModelAndView();
+        String onedriveToken = redisTemplate.opsForValue().get("onedrive");
+        String driverId = (String) request.getSession().getAttribute("driverId");
+        sessionIdList = sessionIdList.subList(0,10);
+        for (String id : sessionIdList) {
+            String url = "https://graph.microsoft.com/v1.0/drives/" + driverId + "/items/" + id + "/thumbnails/0/large";
+            HttpHeaders httpHeaders = new HttpHeaders();
+            RestTemplate template = new RestTemplate();
+            httpHeaders.setBearerAuth(onedriveToken);
+            ResponseEntity<HashMap> itemResult = template.exchange(url, HttpMethod.GET, new HttpEntity<>(httpHeaders), HashMap.class);
+            System.out.println(itemResult.getBody());
+
+            list.add(itemResult.getBody().get("url"));
+        }
+
+        modelAndView.addObject("fileList",list);
+        modelAndView.setViewName("photowall");
+        return modelAndView;
+    }
 }
