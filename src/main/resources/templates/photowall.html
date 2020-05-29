@@ -2,7 +2,7 @@
 <html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>照片墙</title>
     <script src="https://cdn.jsdelivr.net/npm/vue"></script>
 
     <script src="masonry.pkgd.min.js"></script>
@@ -12,12 +12,22 @@
     <script src="ele/index.js"></script>
     <script src="imagesloaded.pkgd.min.js"></script>
     <style>
-        * { box-sizing: border-box; }
+        demo-block {
+            border: 1px solid #ebebeb;
+            border-radius: 3px;
+            transition: .2s;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
 
         /* force scrollbar */
-        html { overflow-y: scroll; }
+        /*    html { overflow-y: scroll; }*/
 
-        body { font-family: sans-serif; }
+        body {
+            font-family: sans-serif;
+        }
 
         /* ---- grid ---- */
 
@@ -51,40 +61,59 @@
 </head>
 <body>
 <div id="app">
-    <div class="grid js-masonry">
-        <div class="grid-sizer"></div>
+    <div id="screenDiv" class="demo-image__lazy" style="overflow: auto;height: 700px">
+        <div class="grid js-masonry">
+            <div class="grid-sizer"></div>
 
-        <div class="grid-item" th:each="item : ${fileList}">
-            <el-card :body-style="{ padding: '0px' }">
-            <img
-                    th:src="${item}"
-                    ></img>
-            </el-card>
+            <div class="grid-item" th:each="item : ${fileList}">
+                <el-card style="border: 1px solid #ebebeb;margin: 10px;
+border-radius: 3px;
+transition: .2s;">
+                    <el-image
+                            style="display: block"
+                            th:src="${item}"
+                            v-on:load="loadImg()" :lazy="true"></el-image>
+                </el-card>
+            </div>
         </div>
     </div>
+</div>
 </div>
 <script type="application/javascript" th:inline="javascript">
     var vue = new Vue({
         el: '#app',
-        mounted() {
-            var elem = document.querySelector('.grid');
-            var imgLoad = imagesLoaded( elem );
-            imgLoad.on( 'done', function (instance,image) {
-                alert(3)
+        data() {
+            return {}
+        },
+        methods: {
+            loadImg(e) {
+                var elem = document.querySelector('.grid');
+
                 var msnry = new Masonry(elem, {
                     // options
                     itemSelector: '.grid-item',
                     percentPosition: true,
                     columnWidth: '.grid-sizer'
                 });
-                alert(4)
-            } );
+            }
+        },
+        mounted() {
+            /* var elem = document.querySelector('.grid');
+             setTimeout(function () {
+                 var imgLoad = imagesLoaded( elem );
+                 imgLoad.on( 'progress', function (instance,image) {
+                     // console.log(image);
+                     var msnry = new Masonry(elem, {
+                         // options
+                         itemSelector: '.grid-item',
+                         percentPosition: true,
+                         columnWidth: '.grid-sizer'
+                     });
+                 } );
+             },3000)*/
+
         }
     })
-
-
-
-
 
 
 </script>

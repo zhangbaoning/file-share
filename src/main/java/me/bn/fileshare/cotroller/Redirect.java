@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.servlet.ModelAndView;
 
@@ -146,14 +147,18 @@ public class Redirect {
             executorService.execute(new Runnable() {
                 @Override
                 public void run() {
-                    String url = "https://graph.microsoft.com/v1.0/drives/" + driverId + "/items/" + id + "/thumbnails/0/large";
-                    HttpHeaders httpHeaders = new HttpHeaders();
-                    RestTemplate template = new RestTemplate();
-                    httpHeaders.setBearerAuth(onedriveToken);
-                    ResponseEntity<HashMap> itemResult = template.exchange(url, HttpMethod.GET, new HttpEntity<>(httpHeaders), HashMap.class);
-                    System.out.println(itemResult.getBody());
+                    try {
+                        String url = "https://graph.microsoft.com/v1.0/drives/" + driverId + "/items/" + id + "/thumbnails/0/large";
+                        HttpHeaders httpHeaders = new HttpHeaders();
+                        RestTemplate template = new RestTemplate();
+                        httpHeaders.setBearerAuth(onedriveToken);
+                        ResponseEntity<HashMap> itemResult = template.exchange(url, HttpMethod.GET, new HttpEntity<>(httpHeaders), HashMap.class);
+                        System.out.println(itemResult.getBody());
 
-                    list.add(itemResult.getBody().get("url"));
+                        list.add(itemResult.getBody().get("url"));
+                    } catch (Exception e) {
+                        System.out.println(Thread.currentThread().getName() + "出错"+e.getLocalizedMessage());
+                    }
                 }
             });
 
