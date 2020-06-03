@@ -61,7 +61,7 @@
 </head>
 <body>
 <div id="app">
-    <div id="screenDiv" class="demo-image__lazy" style="overflow: auto;height: 700px">
+    <div id="screenDiv" class="demo-image__lazy" style="overflow: auto">
         <div class="grid js-masonry">
             <div class="grid-sizer"></div>
 
@@ -72,7 +72,8 @@ transition: .2s;">
                     <el-image
                             style="display: block"
                             th:src="${item}"
-                            v-on:load="loadImg()" :lazy="true"></el-image>
+                            v-on:load="loadImg()" :lazy="true"
+                            :preview-src-list="preList"></el-image>
                 </el-card>
             </div>
         </div>
@@ -83,7 +84,9 @@ transition: .2s;">
     var vue = new Vue({
         el: '#app',
         data() {
-            return {}
+            return {
+                "preList":[[${preList}]]
+            }
         },
         methods: {
             loadImg(e) {
@@ -111,7 +114,8 @@ transition: .2s;">
                      });
                  } );
              },3000)*/
-
+            alert(document.body.clientHeight)
+            document.getElementById("screenDiv").style.height=document.body.clientHeight;
         }
     })
 

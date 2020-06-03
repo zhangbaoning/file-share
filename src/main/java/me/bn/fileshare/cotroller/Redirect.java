@@ -2,11 +2,15 @@ package me.bn.fileshare.cotroller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.core.io.Resource;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.ByteArrayHttpMessageConverter;
+import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
@@ -15,6 +19,7 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
+import java.io.ByteArrayInputStream;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -143,6 +148,7 @@ public class Redirect {
         String driverId = (String) request.getSession().getAttribute("driverId");
         //sessionIdList = sessionIdList.subList(0,10);
         ExecutorService executorService =  Executors.newFixedThreadPool(5);
+        List preList = new ArrayList();
         for (String id : sessionIdList) {
             executorService.execute(new Runnable() {
                 @Override
@@ -155,7 +161,9 @@ public class Redirect {
                         ResponseEntity<HashMap> itemResult = template.exchange(url, HttpMethod.GET, new HttpEntity<>(httpHeaders), HashMap.class);
                         System.out.println(itemResult.getBody());
 
+//                        template.exchange(url, HttpMethod.GET, new HttpEntity<>(httpHeaders), Object.class);
                         list.add(itemResult.getBody().get("url"));
+                        preList.add("orignImg?id="+id);
                     } catch (Exception e) {
                         System.out.println(Thread.currentThread().getName() + "出错"+e.getLocalizedMessage());
                     }
@@ -170,7 +178,25 @@ public class Redirect {
             e.printStackTrace();
         }
         modelAndView.addObject("fileList",list);
+        modelAndView.addObject("preList",preList);
         modelAndView.setViewName("photowall");
         return modelAndView;
+    }
+    @GetMapping("orignImg")
+    public ResponseEntity<Resource> orignImg(@RequestParam("id") String id){
+        List<HttpMessageConverter> converters = new ArrayList<>(1);
+        converters.add(new ByteArrayHttpMessageConverter());
+        String onedriveToken = redisTemplate.opsForValue().get("onedrive");
+        String driverId = (String) request.getSession().getAttribute("driverId");
+
+        String   url = "https://graph.microsoft.com/v1.0/drives/" + driverId + "/items/" + id + "/content";
+        HttpHeaders httpHeaders = new HttpHeaders();
+        RestTemplate template = new RestTemplate();
+        httpHeaders.setBearerAuth(onedriveToken);
+        ResponseEntity<byte[]> itemResult = template.exchange(url, HttpMethod.GET, new HttpEntity<>(httpHeaders), byte[].class);
+        InputStreamResource resource = new InputStreamResource(new ByteArrayInputStream(itemResult.getBody()));
+        return ResponseEntity.ok().contentLength(itemResult.getBody().length).contentType(itemResult.getHeaders().getContentType()).body(resource);
+
+
     }
 }
