@@ -8,12 +8,19 @@ import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.lang.Nullable;
+import org.springframework.util.MultiValueMap;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.multipart.MultipartHttpServletRequest;
+import org.springframework.web.multipart.MultipartResolver;
+import org.springframework.web.multipart.commons.CommonsMultipartResolver;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.stereotype.Controller;
 
 import javax.servlet.ServletRequest;
+import javax.servlet.annotation.MultipartConfig;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import java.io.File;
@@ -33,9 +40,14 @@ public class FileCotroller {
     @Autowired
     private HttpServletRequest request;
 
-    @PostMapping("/upload")
-    public String upload(@RequestParam("uploadfile") MultipartFile file){
-        Path path = Paths.get(uploadFilePath+File.separator+file.getOriginalFilename());
+    @PostMapping(value = "/upload", consumes = "multipart/form-data")
+    public String upload(@RequestParam("uploadfile")MultipartFile file,@RequestParam Map paramMap){
+       String filePath= uploadFilePath+File.separator+paramMap.get("filePath");
+        File pathFile= new File(filePath);
+        if (!pathFile.exists()){
+            pathFile.mkdirs();
+        }
+        Path path = Paths.get(filePath+File.separator+file.getOriginalFilename());
         try {
             file.transferTo(path);
             System.out.println(request.getLocalAddr());
@@ -52,10 +64,13 @@ public class FileCotroller {
 //        return "index";
 //    }
     @RequestMapping("/")
-    public ModelAndView index(){
+    public ModelAndView index(@Nullable String listPath){
         ModelAndView modelAndView = new ModelAndView();
         boolean isPublic = true;
         List<Map<String,String>> fileNameList = new ArrayList<>();
+        if (!StringUtils.isEmpty(listPath)){
+            uploadFilePath = listPath;
+        }
         File file = new File(uploadFilePath);
         try {
             Cookie[] cookies = request.getCookies();
@@ -82,8 +97,12 @@ public class FileCotroller {
         return modelAndView;
     }
     @GetMapping("/download")
-    public ResponseEntity<Resource> download(@RequestParam("fileName") String fileName){
+    public Object download(@RequestParam("fileName") String fileName){
         File file = new File(uploadFilePath+File.separator+fileName);
+        if (file.isDirectory()){
+           return index(uploadFilePath+File.separator+fileName);
+
+        }
         InputStreamResource resource = null;
         HttpHeaders headers = new HttpHeaders();
         try {
@@ -102,5 +121,23 @@ public class FileCotroller {
                 .contentLength(file.length())
                 .contentType(MediaType.valueOf(MediaType.APPLICATION_OCTET_STREAM_VALUE))
                 .body(resource);
+    }
+    @GetMapping("/img")
+    public ModelAndView img(){
+        File file = new File(uploadFilePath);
+        List list = new ArrayList();
+        List preList = new ArrayList();
+        for (File listFile : file.listFiles()) {
+            if (listFile.isFile()&&(listFile.getName().endsWith("png")||listFile.getName().endsWith("jpg")||listFile.getName().endsWith("jpeg"))){
+                list.add("http://hw.dinging.cn:8081/"+listFile.getName());
+                preList.add("http://hw.dinging.cn:8081/"+listFile.getName());
+
+            }
+        }
+        ModelAndView modelAndView = new ModelAndView();
+        modelAndView.addObject("fileList",list);
+        modelAndView.addObject("preList",preList);
+        modelAndView.setViewName("photowall");
+        return modelAndView;
     }
 }

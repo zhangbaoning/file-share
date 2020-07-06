@@ -1,5 +1,5 @@
 upload-file-path: D:/temp
-clientId: 19ef04dc-2fb4-4fc9-87c8-7017f133cfbc
+clientId: 846abe5e-34e8-4d40-86df-602bc5ac54f1
 spring:
   servlet:
     multipart:

@@ -14,6 +14,7 @@ import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.servlet.ModelAndView;
@@ -69,13 +70,16 @@ public class Redirect {
             modelAndView.setViewName("onedriver");
             return modelAndView;
         } else if(param.size()>1) {
-            redisTemplate.opsForValue().set("onedrive", param.get("access_token"),9L, TimeUnit.MINUTES);
+            //redisTemplate.opsForValue().set("onedrive", param.get("access_token"),9L, TimeUnit.MINUTES);
+            redisTemplate.opsForValue().set("onedrive", param.get("access_token"));
 
         }
         String url = "https://graph.microsoft.com/v1.0/me/drives";
         HttpHeaders httpHeaders = new HttpHeaders();
         RestTemplate template = new RestTemplate();
         httpHeaders.setBearerAuth(param.get("access_token"));
+        try {
+
         ResponseEntity<HashMap> result = template.exchange(url, HttpMethod.GET, new HttpEntity<>(httpHeaders), HashMap.class);
         ArrayList<Map<String, String>> valueList = (ArrayList) result.getBody().get("value");
         String driverId = valueList.get(0).get("id");
@@ -97,7 +101,11 @@ public class Redirect {
 
 
         }
-
+        }catch (HttpClientErrorException.Unauthorized errorException){
+            redisTemplate.opsForValue().set("onedrive","");
+            modelAndView.setViewName("onedriver");
+            return modelAndView;
+        }
         modelAndView.addObject("fileNameList", fileNameList);
         modelAndView.setViewName("index");
         return modelAndView;

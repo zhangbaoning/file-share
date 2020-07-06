@@ -34,7 +34,7 @@ public class SecurityConf extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        http.authorizeRequests().mvcMatchers("download","upload")
+        http.authorizeRequests().mvcMatchers("download","")
                 .authenticated()
                 .and().formLogin().successForwardUrl("/");
         http.rememberMe();
