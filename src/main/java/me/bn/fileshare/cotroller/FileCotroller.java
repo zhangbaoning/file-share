@@ -41,12 +41,14 @@ public class FileCotroller {
     private HttpServletRequest request;
 
     @PostMapping(value = "/upload", consumes = "multipart/form-data")
-    public String upload(@RequestParam("uploadfile")MultipartFile file,@RequestParam Map paramMap){
-       String filePath= uploadFilePath+File.separator+paramMap.get("filePath");
+    public String upload(@RequestParam("uploadfile")MultipartFile file,@RequestParam Map<String,String> paramMap){
+
+        String filePath= uploadFilePath+File.separator+(paramMap.size()>0?paramMap.get("filePath"):"");
         File pathFile= new File(filePath);
         if (!pathFile.exists()){
             pathFile.mkdirs();
         }
+        System.out.println("文件上传路径"+filePath);
         Path path = Paths.get(filePath+File.separator+file.getOriginalFilename());
         try {
             file.transferTo(path);
@@ -68,10 +70,10 @@ public class FileCotroller {
         ModelAndView modelAndView = new ModelAndView();
         boolean isPublic = true;
         List<Map<String,String>> fileNameList = new ArrayList<>();
-        if (!StringUtils.isEmpty(listPath)){
-            uploadFilePath = listPath;
+        if (StringUtils.isEmpty(listPath)){
+            listPath = uploadFilePath;
         }
-        File file = new File(uploadFilePath);
+        File file = new File(listPath);
         try {
             Cookie[] cookies = request.getCookies();
             for (Cookie cookie : cookies) {
@@ -84,7 +86,7 @@ public class FileCotroller {
                     Map<String,String> respMap = new HashMap(2);
 
                     respMap.put("fileName",String.valueOf(listFile.getName()));
-                        respMap.put("url","/download?fileName="+listFile.getName());
+                        respMap.put("url","/download?fileName="+listFile.getAbsolutePath());
                         fileNameList.add(respMap);
                 }
             }
@@ -98,9 +100,9 @@ public class FileCotroller {
     }
     @GetMapping("/download")
     public Object download(@RequestParam("fileName") String fileName){
-        File file = new File(uploadFilePath+File.separator+fileName);
+        File file = new File(fileName);
         if (file.isDirectory()){
-           return index(uploadFilePath+File.separator+fileName);
+           return index(fileName);
 
         }
         InputStreamResource resource = null;
@@ -109,7 +111,7 @@ public class FileCotroller {
         headers.add("Cache-Control", "no-cache, no-store, must-revalidate");
         headers.add("Pragma", "no-cache");
         headers.add("Expires", "0");
-        headers.setContentDispositionFormData("attachment", new String(fileName.getBytes(),"iso8859-1"));
+        headers.setContentDispositionFormData("attachment", new String(file.getName().getBytes(),"iso8859-1"));
 
             resource = new InputStreamResource(new FileInputStream(file));
         } catch (Exception e) {
@@ -129,8 +131,8 @@ public class FileCotroller {
         List preList = new ArrayList();
         for (File listFile : file.listFiles()) {
             if (listFile.isFile()&&(listFile.getName().endsWith("png")||listFile.getName().endsWith("jpg")||listFile.getName().endsWith("jpeg"))){
-                list.add("http://hw.dinging.cn:8081/"+listFile.getName());
-                preList.add("http://hw.dinging.cn:8081/"+listFile.getName());
+                list.add(listFile.getName());
+                preList.add(listFile.getName());
 
             }
         }

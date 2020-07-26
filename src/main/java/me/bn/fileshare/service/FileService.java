@@ -3,6 +3,7 @@ package me.bn.fileshare.service;
 import me.bn.fileshare.dao.FileDao;
 import me.bn.fileshare.entity.FileEntity;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.io.*;
@@ -37,6 +38,7 @@ public class FileService {
         fileEntity.setUuid(UUID.randomUUID().toString());
         fileEntity.setIsEncrypt(isEncrypt);
         fileEntity.setIp(ip);
+        fileEntity.setUser(SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString());
         dao.save(fileEntity);
     }
 }
