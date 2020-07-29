@@ -14,15 +14,17 @@ import java.util.Collection;
 public class MyAccessDecisionManager implements AccessDecisionManager {
     @Override
     public void decide(Authentication authentication, Object o, Collection<ConfigAttribute> collection) throws AccessDeniedException, InsufficientAuthenticationException {
+        boolean flag = false;
         FilterInvocation filterInvocation = (FilterInvocation) o;
         if ((filterInvocation.getRequestUrl().endsWith("png")||filterInvocation.getRequestUrl().endsWith("jpg")||filterInvocation.getRequestUrl().endsWith("jpeg"))) {
 
             for (GrantedAuthority authority : authentication.getAuthorities()) {
                 if (filterInvocation.getRequestUrl().contains(authority.getAuthority())) {
-
-                }else {
-                    throw new AccessDeniedException(filterInvocation.getRequestUrl()+"failure");
+                    flag = true;
                 }
+            }
+            if (!flag){
+                throw new AccessDeniedException(filterInvocation.getRequestUrl()+"failure");
             }
         }
     }

@@ -34,7 +34,7 @@ public class LoginUserDetailsService implements UserDetailsService {
             UsersEntity usersEntity = usersOptional.get();
             FileEntity fileEntity = new FileEntity();
             fileEntity.setUser(s);
-            Example<FileEntity> fileEntityExample = Example.of(fileEntity, ExampleMatcher.matchingAll());
+            Example<FileEntity> fileEntityExample = Example.of(fileEntity, ExampleMatcher.matching().withIgnorePaths("id"));
             List<SimpleGrantedAuthority> authorities = new ArrayList<SimpleGrantedAuthority>();
 
             List<FileEntity> fileEntityList = fileDao.findAll(fileEntityExample);

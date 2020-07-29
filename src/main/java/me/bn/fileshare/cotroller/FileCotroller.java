@@ -89,6 +89,8 @@ public class FileCotroller {
                         respMap.put("url","/download?fileName="+listFile.getAbsolutePath());
                         fileNameList.add(respMap);
                 }
+                request.getSession().setAttribute("filePath",file.getAbsolutePath());
+
             }
 
         } catch (Exception e) {
@@ -126,13 +128,16 @@ public class FileCotroller {
     }
     @GetMapping("/img")
     public ModelAndView img(){
-        File file = new File(uploadFilePath);
+        String path = (String) request.getSession().getAttribute("filePath");
+        File uploadFile = new File(uploadFilePath);
+        File file = new File(path);
+
         List list = new ArrayList();
         List preList = new ArrayList();
         for (File listFile : file.listFiles()) {
             if (listFile.isFile()&&(listFile.getName().endsWith("png")||listFile.getName().endsWith("jpg")||listFile.getName().endsWith("jpeg"))){
-                list.add(listFile.getName());
-                preList.add(listFile.getName());
+                list.add(listFile.getPath().replace(uploadFile.getAbsolutePath(),""));
+                preList.add( listFile.getPath().replace(uploadFile.getAbsolutePath(),""));
 
             }
         }
