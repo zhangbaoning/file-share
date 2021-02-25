@@ -6,37 +6,37 @@ import java.util.Stack;
 public class Postfix {
 
         /**
-         * ½«ºó×º×ª»»Îªºó×º±í´ïÊ½
+         * å°†åç¼€è½¬æ¢ä¸ºåç¼€è¡¨è¾¾å¼
          *
          * @param infix
          * @return
          */
         public static String infixToPostfix(String infix) {
-            // ²Ù×÷·ûÕ»-----'+ - * / ( )'
+            // æ“ä½œç¬¦æ ˆ-----'+ - * / ( )'
             Stack<Character> op = new Stack<Character>();
             StringBuilder postfixStr = new StringBuilder("");
             char[] prefixs = infix.trim().toCharArray();
             Character ch;
             for (int i = 0; i < prefixs.length; i++) {
                 ch = prefixs[i];
-                // Èç¹ûÊÇÊı×Ö 0~9
+                // å¦‚æœæ˜¯æ•°å­— 0~9
                 if (ch >= '0' && ch <= '9') {
                     // vlaues.push(Integer.valueOf(ch));
                     postfixStr.append(ch);
                     continue;
                 }
-                // "("---Ö±½ÓÑ¹Õ»
+                // "("---ç›´æ¥å‹æ ˆ
                 if ('(' == ch) {
                     op.push(ch);
                     continue;
                 }
                 /*
-                 * '+ - * /'----¿ÕÕ»Ö±½ÓÑ¹Õ»·ñÔòÓëÕ»¶¥ÔªËØ±È½Ï£¬ ÓÅÏÈ¼¶µÍÓÚÕ»¶¥ÔªËØÔòµ¯³öÕ»Ö±µ½Óöµ½ÓÅÏÈ¼¶ÏàµÈ»òÕßµÍµÄ¾ÍÍ£Ö¹µ¯Õ»
-                 * ×îºó½«¸Ã²Ù×÷·ûÑ¹Õ»
+                 * '+ - * /'----ç©ºæ ˆç›´æ¥å‹æ ˆå¦åˆ™ä¸æ ˆé¡¶å…ƒç´ æ¯”è¾ƒï¼Œ ä¼˜å…ˆçº§ä½äºæ ˆé¡¶å…ƒç´ åˆ™å¼¹å‡ºæ ˆç›´åˆ°é‡åˆ°ä¼˜å…ˆçº§ç›¸ç­‰æˆ–è€…ä½çš„å°±åœæ­¢å¼¹æ ˆ
+                 * æœ€åå°†è¯¥æ“ä½œç¬¦å‹æ ˆ
                  */
 
                 if ('+' == ch || '-' == ch) {
-                    // Ö»ÒªÕ»²»Îª¿Õ£¬Õ»¶¥ÔªËØ²»ÊÇ'(' ¾Íµ¯Õ»
+                    // åªè¦æ ˆä¸ä¸ºç©ºï¼Œæ ˆé¡¶å…ƒç´ ä¸æ˜¯'(' å°±å¼¹æ ˆ
                     while (!op.empty() && (op.peek() != '(')) {
                         postfixStr.append(op.pop());
                     }
@@ -44,36 +44,36 @@ public class Postfix {
                     continue;
                 }
                 if ('*' == ch || '/' == ch) {
-                    // Ö»ÒªÕ»²»Îª¿Õ£¬Õ»¶¥ÔªËØÊÇ'* /' ¾Íµ¯Õ»
+                    // åªè¦æ ˆä¸ä¸ºç©ºï¼Œæ ˆé¡¶å…ƒç´ æ˜¯'* /' å°±å¼¹æ ˆ
                     while (!op.empty() && (op.peek() == '*' || op.peek() == '/')) {
                         postfixStr.append(op.pop());
                     }
                     op.push(ch);
                     continue;
                 }
-                // ')'----¿ªÊ¼µ¯Õ»Ö±µ½Óöµ½µÚÒ»¸ö'('
+                // ')'----å¼€å§‹å¼¹æ ˆç›´åˆ°é‡åˆ°ç¬¬ä¸€ä¸ª'('
                 if (')' == ch) {
                     while (!op.empty() && op.peek() != '(') {
                         postfixStr.append(op.pop());
                     }
-                    op.pop();// ----½«'('ÔªËØµ¯³ö
+                    op.pop();// ----å°†'('å…ƒç´ å¼¹å‡º
                     continue;
                 }
             }
-            // ËùÓĞ×Ö·û±éÀúÍê±Ï²Ù×÷ÊıÕ»»¹ÓĞÊı¾İ¾ÍÈ«²¿µ¯Õ»
+            // æ‰€æœ‰å­—ç¬¦éå†å®Œæ¯•æ“ä½œæ•°æ ˆè¿˜æœ‰æ•°æ®å°±å…¨éƒ¨å¼¹æ ˆ
             while (!op.empty())
                 postfixStr.append(op.pop());
             return postfixStr.toString();
         }
 
         /**
-         * ¼ÆËãºó×º±í´ïÊ½
+         * è®¡ç®—åç¼€è¡¨è¾¾å¼
          *
          * @param postfix
          * @return
          */
         public static int sumPostfix(String postfix){
-            //²Ù×÷ÊıÕ»---ÔİÊ±Ö»¿¼ÂÇÕıÕûÊı
+            //æ“ä½œæ•°æ ˆ---æš‚æ—¶åªè€ƒè™‘æ­£æ•´æ•°
             Stack<Integer> values;
             int result=0;
             try {
@@ -83,8 +83,8 @@ public class Postfix {
                 for(int i=0;i<postfixs.length;i++){
                     ch=postfixs[i];
                     if(ch >= '0' && ch <= '9') {
-                        values.push(Integer.valueOf(String.valueOf(ch)));//---Èç²Ù×÷Õ»
-                        //»òÕß£º*****ÕâÑù¸ü¿¼ÑéË¼Î¬
+                        values.push(Integer.valueOf(String.valueOf(ch)));//---å¦‚æ“ä½œæ ˆ
+                        //æˆ–è€…ï¼š*****è¿™æ ·æ›´è€ƒéªŒæ€ç»´
                         //values.push(Integer.valueOf(ch-'0'));
                     }else {
                         result=operate(ch, values.pop(),values.pop());
@@ -99,17 +99,17 @@ public class Postfix {
                 }
 
             } catch (NumberFormatException e) {
-                System.out.println("Êı¾İ×ª»»³öÒì³£");
-            }catch(EmptyStackException e){//Õ»ÖĞÎª¿Õ»¹ÔÚ½øĞĞµ¯Õ»²Ù×÷
-                System.out.println("ºó×º±í´ïÊ½¸ñÊ½ÓĞÎÊÌâ");
-            }catch(Exception e){  // ·ûºÅ¶¼ÓÃÍêÕ»ÖĞ»¹ÓĞ¶à¸öÊı¾İ
-                System.out.println("ºó×º±í´ïÊ½¸ñÊ½ÓĞÎÊÌâ");
+                System.out.println("æ•°æ®è½¬æ¢å‡ºå¼‚å¸¸");
+            }catch(EmptyStackException e){//æ ˆä¸­ä¸ºç©ºè¿˜åœ¨è¿›è¡Œå¼¹æ ˆæ“ä½œ
+                System.out.println("åç¼€è¡¨è¾¾å¼æ ¼å¼æœ‰é—®é¢˜");
+            }catch(Exception e){  // ç¬¦å·éƒ½ç”¨å®Œæ ˆä¸­è¿˜æœ‰å¤šä¸ªæ•°æ®
+                System.out.println("åç¼€è¡¨è¾¾å¼æ ¼å¼æœ‰é—®é¢˜");
             }
             return result;
         }
         public static int operate(char op,int value1,int value2){
             int result=0;
-            //¼Ç×¡ÓÃµÚ¶ş¸öµ¯Õ»µÄÖµvalue2£¨¼Ó¼õ³Ë³ı£©µÚÒ»¸öµ¯Õ»µÄÖµvalue1
+            //è®°ä½ç”¨ç¬¬äºŒä¸ªå¼¹æ ˆçš„å€¼value2ï¼ˆåŠ å‡ä¹˜é™¤ï¼‰ç¬¬ä¸€ä¸ªå¼¹æ ˆçš„å€¼value1
             switch ((int) op) {
                 case 43://'+'
                     result=value2+value1;

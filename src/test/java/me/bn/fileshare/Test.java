@@ -14,7 +14,7 @@ public class Test {
         Stack<Character> stack = new Stack();
         StringBuilder sb = new StringBuilder();
         for (char c : exp.toCharArray()) {
-            // ÓÅÏÈ¼¶×î¸ß
+            // ä¼˜å…ˆçº§æœ€é«˜
             if (c==')'){
                 if (!"".equals(sb.toString())){
                     list.add(sb.toString());
@@ -54,7 +54,7 @@ public class Test {
                     list.add(sb.toString());
                 }
                 sb= new StringBuilder();
-                // Èç¹ûËüµÄ¶¥ÊÇ*/ ¾ÍÊä³öµ½£¨»òÕßÎª¿Õ
+                // å¦‚æœå®ƒçš„é¡¶æ˜¯*/ å°±è¾“å‡ºåˆ°ï¼ˆæˆ–è€…ä¸ºç©º
 
 
                 while (!stack.empty()&&stack.peek()!='(') {
@@ -100,7 +100,7 @@ public class Test {
                     result = process(first,s,second);
                     stack.push(String.valueOf(result));
                 } catch (Exception e) {
-                    System.out.println("ÊäÈë±í´ïÊ½ = NaN");
+                    System.out.println("è¾“å…¥è¡¨è¾¾å¼ = NaN");
                    break;
                 }
 

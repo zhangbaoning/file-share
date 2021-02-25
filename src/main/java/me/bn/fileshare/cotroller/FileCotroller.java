@@ -27,6 +27,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
@@ -78,11 +79,11 @@ public class FileCotroller {
             Cookie[] cookies = request.getCookies();
             for (Cookie cookie : cookies) {
                 if ("isPublic".equals(cookie.getName())){
-                    isPublic = "true".equals(cookie.getValue())?true:false;
+                    isPublic = "true".equals(cookie.getValue());
                 }
             }
             if (isPublic){
-                for (File listFile : file.listFiles()) {
+                for (File listFile : Objects.requireNonNull(file.listFiles())) {
                     Map<String,String> respMap = new HashMap(2);
 
                     respMap.put("fileName",String.valueOf(listFile.getName()));
@@ -113,7 +114,7 @@ public class FileCotroller {
         headers.add("Cache-Control", "no-cache, no-store, must-revalidate");
         headers.add("Pragma", "no-cache");
         headers.add("Expires", "0");
-        headers.setContentDispositionFormData("attachment", new String(file.getName().getBytes(),"iso8859-1"));
+        headers.setContentDispositionFormData("attachment", new String(file.getName().getBytes(), StandardCharsets.ISO_8859_1));
 
             resource = new InputStreamResource(new FileInputStream(file));
         } catch (Exception e) {

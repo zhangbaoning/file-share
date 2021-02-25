@@ -32,7 +32,7 @@ String md5a = HexUtils.toHexString(md.digest(base64));
             e.printStackTrace();
         }
 
-        // Í¨¹ımd5¼ÆËãÕªÒª,·µ»ØÒ»¸ö×Ö½ÚÊı×é
+        // é€šè¿‡md5è®¡ç®—æ‘˜è¦,è¿”å›ä¸€ä¸ªå­—èŠ‚æ•°ç»„
 
     }
     @Test
